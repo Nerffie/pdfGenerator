@@ -9,15 +9,15 @@ class PdfController
 {
     public function generate()
     {
-        var_dump(extension_loaded('curl'));
+        //var_dump(extension_loaded('curl'));
         $html2pdf = new Html2Pdf('P', 'A4', 'fr');
 
         /* A modifier selon le chemin */
         /* !! chemins des images !! */
-        $content = file_get_contents('C:\Users\edith\Documents\projet\pdfgenerator\src\Controller\contenuDraft.html');
-        //$content = file_get_contents('C:\Users\edith\Documents\projet\pdfgenerator\src\Controller\contenuQuill.html');
+        //$content = file_get_contents('D:\Users\moham\Documents\Projet Isima\pdfgenerator\src\Controller\ContenuDraft.html');
+        $content = file_get_contents('D:\Users\moham\Documents\Projet Isima\pdfgenerator\src\Controller\ContenuQuill.html');
         
         $html2pdf->writeHTML($content);
-        $html2pdf->output('example.pdf');
+        $html2pdf->output('resultatQuill.pdf');
     }
 }
