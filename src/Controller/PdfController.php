@@ -9,7 +9,6 @@ class PdfController
 {
     public function generate()
     {
-        var_dump(extension_loaded('curl'));
         $html2pdf = new Html2Pdf('P', 'A4', 'fr');
 
         /* A modifier selon le chemin */
