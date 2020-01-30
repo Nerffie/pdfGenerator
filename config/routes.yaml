@@ -1,3 +1,11 @@
-index:
-  path: /
-  controller: App\Controller\PdfController::generate
+indexJson:
+  path: /Json
+  controller: App\Controller\JsonController::generateJsonVar
+
+indexPdf:
+  path: /Pdf
+  controller: App\Controller\PdfController::generatePdf
+
+indexHtml:
+  path: /Html
+  controller: App\Controller\HtmlController::generateHtml

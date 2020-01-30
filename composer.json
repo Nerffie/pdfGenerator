@@ -5,6 +5,8 @@
         "php": "^7.2.5",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "doctrine/mongodb-odm-bundle": "^4.1",
+        "nadar/quill-delta-parser": "^2.4",
         "spipu/html2pdf": "^5.2",
         "symfony/console": "5.0.*",
         "symfony/dotenv": "5.0.*",
