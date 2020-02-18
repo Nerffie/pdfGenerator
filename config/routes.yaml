@@ -1,6 +1,10 @@
 indexJson:
-  path: /Json
-  controller: App\Controller\JsonController::generateJsonVar
+  path: /Json # /{nom}
+  controller: App\Controller\JsonController::receptionContrat
+
+indexJsonVar:
+  path: /JsonVar/{id}
+  controller: App\Controller\JsonController::envoiVar
 
 indexPdf:
   path: /Pdf
