@@ -14,16 +14,15 @@ class FormController
     /**
      * @Route("/form/{id}", name="get_form", methods={"GET"})
      */
-    public function getFormById($id): JsonResponse
+    public function getFormById(DocumentManager $dm, $id): JsonResponse
     {
-        $data = [];
+        $encoders = [new XmlEncoder(), new JsonEncoder()];
+        $normalizers = [new ObjectNormalizer()];
+        $serializer = new Serializer($normalizers, $encoders);
 
-            $data[] = [
-                'id' => $id,
-                'variable 1' => 'text',
-                'variable 2'=>'date'
-                
-            ];
+        $repo = $dm->getRepository(Variable::class);
+        $variable = $repo->find($id);
+        $data = $serializer->serialize($variable,'json');
         
 
         return new JsonResponse($data, Response::HTTP_OK);
