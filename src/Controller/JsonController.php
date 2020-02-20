@@ -3,24 +3,29 @@
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use App\Document\Contrat;
 use App\Document\Variable;
 use Doctrine\ODM\MongoDB\DocumentManager as DocumentManager;
 
 class JsonController    
 {
-    public function receptionContrat(DocumentManager $dm/*, $nom*/)
+    
+    public function receptionContrat(DocumentManager $dm, Request $request/*, $nom*/): JsonREsponse
     {
+        $data = json_decode($request->getContent(), true);
         /* A FAIRE RECUPERER JSON FRONT */
-        $repo = $dm->getRepository(Contrat::class);
-        $json = $repo->find("5e418532576000009b0052f4");
+      /*  $repo = $dm->getRepository(Contrat::class);
+        $json = $repo->find("5e418532576000009b0052f4");*/
 
         //Enregistrer Contrat dans BD
-        /*$contrat = new Contrat();
-        $contrat->setOps($json);
-        $contrat->setNom($nom);
+        $contrat = new Contrat();
+        $contrat->setOps($data->ops);
+        //$contrat->setNom($nom);
         $dm->persist($contrat); 
-        $dm->flush();*/
+        $dm->flush();
 
         //Parser Contrat pour créer le json des variables
         $parsed_json = json_decode($json->getOps());
@@ -81,7 +86,8 @@ class JsonController
         $dm->persist($variableBD); 
         $dm->flush();           
 
-        return new Response($jsonVar);
+        //return new Response($jsonVar);
+        return new JsonResponse(['status' => 'Contract  '.$contrat->getId(). ' Created'], Response::HTTP_CREATED);
               
     }
 

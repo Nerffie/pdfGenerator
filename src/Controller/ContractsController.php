@@ -6,6 +6,14 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Document\Contrat;
+use App\Document\Variable;
+use Doctrine\ODM\MongoDB\DocumentManager as DocumentManager;
+use Psr\Log\LoggerInterface;
+
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Encoder\XmlEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 
 
@@ -16,33 +24,15 @@ class ContractsController
     /**
      * @Route("/contracts", name="get_all_contracts", methods={"GET"})
      */
-    public function getAll(): JsonResponse
+    public function getAll(LoggerInterface $logger, DocumentManager $dm): JsonResponse
     {
-        
-            
-        /*$contract1 = new Contrat();
-        $contract1->setId(20230);
-        $contract1->setOps("operations 1");
+        $encoders = [new XmlEncoder(), new JsonEncoder()];
+        $normalizers = [new ObjectNormalizer()];
+        $serializer = new Serializer($normalizers, $encoders);
 
-        $contract2 = new Contrat();
-        $contract2->setId(20231);
-        $contract2->setOps("operations 2");
-
-        $contract3 = new Contrat();
-        $contract3->setId(20232);
-        $contract3->setOps("operations 3");*/
-
-        $contract1 = array('id'=>20230,'ops'=>'operations 1');
-        $contract2 = array('id'=>20231,'ops'=>'operations 2');
-        $contract3 = array('id'=>20232,'ops'=>'operations 3');
-        
-        $contracts = [$contract1,$contract2,$contract3];
-        $data = json_encode($contracts);
-            /*$data[] = [
-                'id' => 96549876541,
-                'firstName' => 'toto',
-                
-            ];*/
+        $repo = $dm->getRepository(Contrat::class);
+        $contracts = $repo->findAll();
+        $data = $serializer->serialize($contracts,'json');
         
         return new JsonResponse($data, Response::HTTP_OK);
     }

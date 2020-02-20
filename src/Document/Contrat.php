@@ -22,7 +22,7 @@ class Contrat
      */
     protected $nom;
 
-    /*public function setNom($nom)
+    public function setNom($nom)
     {
         $this->nom = $nom;
         return $this; // pour chainer les setters
@@ -31,11 +31,6 @@ class Contrat
     public function getNom()
     {
         return $this->nom;
-    }*/
-
-    public function setId($id){
-        $this->id = $id;
-        return $this;
     }
 
     public function setOps($ops)
