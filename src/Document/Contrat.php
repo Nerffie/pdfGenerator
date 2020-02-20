@@ -33,6 +33,11 @@ class Contrat
         return $this->nom;
     }*/
 
+    public function setId($id){
+        $this->id = $id;
+        return $this;
+    }
+
     public function setOps($ops)
     {
         $this->ops = $ops;
