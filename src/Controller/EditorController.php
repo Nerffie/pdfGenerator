@@ -50,7 +50,7 @@ class EditorController
         $contrat->setOps($request->getContent());
         //$contrat->setNom($nom);
         $dm->persist($contrat); 
-        $dm->flush();
+       
 
         //Parser Contrat pour créer le json des variables
         $parsed_json = json_decode($contrat->getOps());
@@ -79,16 +79,26 @@ class EditorController
                         /* VERIFIER QUE VAR N'EXISTE PAS DANS JSONVAR */
                         /* SI EXISTE $indice = $posFin+3 */
 
-                        if($posFin != NULL)
+                        $pos = strpos($jsonVar, $variable);
+
+                        if($pos === false)
                         {
-                            $type = substr($chaine, $posMil+2, $posFin-$taille);
-                            $jsonVar .= '"'.$variable . '" : "' . $type . '", ';
-                            $indice = $posFin + 3;
+                            if($posFin != NULL)
+                            {
+                                $type = substr($chaine, $posMil+2, $posFin-$taille);
+                                $jsonVar .= '"'.$variable . '" : "' . $type . '", ';
+                                $indice = $posFin + 3;
+                            }
+                            else
+                            {
+                                $indice = $taille;
+                            }
                         }
                         else
                         {
-                            $indice = $taille;
+                            $indice = $posFin+3;
                         }
+                        
                     }
                     else
                     {
@@ -117,12 +127,83 @@ class EditorController
     /**
      * @Route("/editor/id/{id}", name="update_one_contract", methods={"PUT"})
      */
-    public function updateContractById(Request $request,$id): JsonResponse
+    public function updateContractById(DocumentManager $dm, Request $request,$id): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
-        //$firstName = $data['firstName'];
-        //$lastName = $data['lastName'];
-        //var_dump($data); console log ?
+        $repo = $dm->getRepository(Contrat::class);
+        $contrat = $repo->find($id);
+        $contrat->setOps($request->getContent());
+        $dm->persist($contrat); 
+        
+        //Parser Contrat pour créer le json des variables
+        $parsed_json = json_decode($contrat->getOps());
+        $jsonVar = null;
+
+        foreach ($parsed_json->ops as $v) {
+            $chaine = $v->insert;
+
+            $taille = strlen($chaine);
+            $indice = 0;
+            while($indice < $taille)
+            {
+                $chaine = substr($chaine, $indice);
+                $chaine = '\n'.$chaine;
+                $taille = strlen($chaine);
+
+                $posDeb = strpos($chaine, '{{');
+
+                if($posDeb != NULL)
+                {
+                    $posMil = strpos($chaine, '||');
+                    if($posMil != NULL)
+                    {
+                        $variable = substr($chaine, $posDeb+2, $posMil-$taille);
+                        $posFin = strpos($chaine, '}}');
+                        /* VERIFIER QUE VAR N'EXISTE PAS DANS JSONVAR */
+                        /* SI EXISTE $indice = $posFin+3 */
+
+                        $pos = strpos($jsonVar, $variable);
+
+                        if($pos === false)
+                        {
+                            if($posFin != NULL)
+                            {
+                                $type = substr($chaine, $posMil+2, $posFin-$taille);
+                                $jsonVar .= '"'.$variable . '" : "' . $type . '", ';
+                                $indice = $posFin + 3;
+                            }
+                            else
+                            {
+                                $indice = $taille;
+                            }
+                        }
+                        else
+                        {
+                            $indice = $posFin+3;
+                        }
+                    }
+                    else
+                    {
+                        $indice = $taille;
+                    }
+                }
+                else
+                {
+                    $indice = $taille;
+                }
+            }
+        }
+
+        $jsonVar = substr($jsonVar, 0, -2);
+
+        //Enregistrer les Variables dans la BD
+        $repoVar = $dm->getRepository(Variable::class);
+        $variableBD = $repoVar->findOneBy(['idContrat' => $id]);
+        $variableBD->setVar($jsonVar);
+        $dm->persist($variableBD);
+        
+        
+        $dm->flush();
+
         return new JsonResponse(['status' => 'Contract '.$id. ' Updated'], Response::HTTP_OK);
     }
     

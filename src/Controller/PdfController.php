@@ -9,19 +9,20 @@ use App\Document\Contrat;
 use App\Document\Variable;
 use Doctrine\ODM\MongoDB\DocumentManager as DocumentManager;
 
+
 class PdfController
 {
     public function generatePdf(DocumentManager $dm)
     {
         /* RECUPERER JsonVar DU FRONT*/
         $repoVariable = $dm->getRepository(Variable::class);
-        $jsonVarBD = $repoVariable->findOneBy(['idContrat' => '5e418532576000009b0052f4']);
+        $jsonVarBD = $repoVariable->findOneBy(['idContrat' => '5e4e9cc13b130000a60040e7']);
         $jsonVar = $jsonVarBD->getVar();
 
         $repoContrat = $dm->getRepository(Contrat::class);
-        $contratBD = $repoContrat->find($jsonVarBD->GetIdContrat());
+        $contratBD = $repoContrat->find('5e4e9cc13b130000a60040e7');
         $contrat = $contratBD->getOps();
-        $parsed_json = json_decode($contrat);
+        $parsed_json = json_decode($contrat); 
 
         // Parcours du contrat remplacé les variables*/
 
@@ -29,6 +30,7 @@ class PdfController
             $chaine = $v->insert;
             $taille = strlen($chaine);
             $indice = 0;
+            
 
             while($indice < $taille)
             {
@@ -48,10 +50,21 @@ class PdfController
 
                         if($posFin != NULL)
                         {
-                            // Recherche de la variable dans $jsonVar
                             $type = substr($chaine, $posMil+2, $posFin-$taille);
                             $jsonVar .= '"'.$variable . '" : "' . $type . '", ';
                             $indice = $posFin + 3;
+                            // Recherche de la variable dans $jsonVar
+                            $i = 0;
+                            while($i < strlen($jsonVar))
+                            {
+                                if($jsonVar[i] == $variable)
+                                {
+                                   // $chaine = str_replace('{{'.$variable.'||'..'}}', $type, )
+                                    $i = strlen($jsonVar);
+                                }
+                                $i++;
+                            }
+                            
                         }
                         else
                         {
@@ -69,18 +82,16 @@ class PdfController
                 }
             }
         }
-        
-        // $html2pdf = new Html2Pdf('P', 'A4', 'fr');
 
-        /* A modifier selon le chemin */
-        /* !! chemins des images !! */
-        //$content = file_get_contents('C:\Users\edith\Documents\projet\pdfgenerator\src\Controller\ContenuDraft.html');
-        //$content = file_get_contents('C:\Users\edith\Documents\projet\pdfgenerator\src\Controller\ContenuQuill.html');
+        $contratUpdate = json_encode($parsed_json);
         
-        //$html2pdf->writeHTML($content);
-        //$html2pdf->output('Exemple.pdf');
+        $lexer = new Lexer($contratUpdate);
+        $html = $lexer->render();
 
-        return new Response($contrat);
-        
+        $html2pdf = new Html2Pdf('P', 'A4', 'fr');
+        $html2pdf->writeHTML($html);
+        $html2pdf->output('Exemple.pdf');
+
+        return new Response($html);       
     }
 }
