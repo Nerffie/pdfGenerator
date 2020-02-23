@@ -23,7 +23,7 @@ class FormController
     /**
      * @Route("/form/{id}", name="get_form", methods={"GET"})
      */
-    public function getFormById(DocumentManager $dm, $id): JsonResponse
+    public function getFormById(loggerInterface $logger,DocumentManager $dm, $id): JsonResponse
     {
         $encoders = [new XmlEncoder(), new JsonEncoder()];
         $normalizers = [new ObjectNormalizer()];
@@ -31,7 +31,11 @@ class FormController
 
         $repo = $dm->getRepository(Variable::class);
         $variable = $repo->findOneBy(['idContrat' => $id]);
+        $logger->info($variable->getVar());
         $data = $serializer->serialize($variable,'json');
+
+        
+
         
 
         return new JsonResponse($data, Response::HTTP_OK);
@@ -41,12 +45,18 @@ class FormController
     /**
      * @Route("/form/{id}", name="post_form", methods={"POST"})
      */
-    public function postFormById(Request $request,$id): JsonResponse
+    public function postFormById(loggerInterface $logger,Request $request,$id): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
-        $firstName = $data['firstName'];
-        $lastName = $data['lastName'];
+      
+        $logger->info($request->getContent());
+        $logger->warning($id);
+        //$data = json_decode($request->getContent(), true);
+        //$logger->warning($data);
+       
+        //$firstName = $data['firstName'];
+        //$lastName = $data['lastName'];
         //var_dump($data); console log ?
+
         return new JsonResponse(['status' => 'Form  '.$id. ' Submitted'], Response::HTTP_CREATED);
     }    
 }
