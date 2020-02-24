@@ -1,1 +1,0 @@
-{"ops": [{"insert": "{{Hello||texte}}" }, {"attributes": { "header": 1},"insert": "\n"},{"insert": "\nThis {{is||nombre}} the {{php||texte}} quill "},{"attributes": {"bold": true},"insert": "{{parser||date}}"},{"insert": "!\n"}, {"insert": "\nThis {{is||nombre}} the {{php||texte}} quill "}]}

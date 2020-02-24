@@ -1,7 +1,1 @@
-indexPdf:
-  path: /Pdf
-  controller: App\Controller\PdfController::generatePdf
 
-indexHtml:
-  path: /Html
-  controller: App\Controller\HtmlController::generateHtml

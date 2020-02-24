@@ -26,7 +26,7 @@ class Variable
     public function setVar($var)
     {
         $this->var = $var;
-        return $this; // pour chainer les setters
+        return $this; 
     }
 
     public function getVar()
@@ -37,7 +37,7 @@ class Variable
     public function setIdContrat($idContrat)
     {
         $this->idContrat = $idContrat;
-        return $this; // pour chainer les setters
+        return $this; 
     }
 
     public function getIdContrat()

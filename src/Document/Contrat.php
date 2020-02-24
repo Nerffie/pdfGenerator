@@ -25,7 +25,7 @@ class Contrat
     public function setNom($nom)
     {
         $this->nom = $nom;
-        return $this; // pour chainer les setters
+        return $this; 
     }
 
     public function getNom()
@@ -36,7 +36,7 @@ class Contrat
     public function setOps($ops)
     {
         $this->ops = $ops;
-        return $this; // pour chainer les setters
+        return $this; 
     }
 
     public function getOps()
