@@ -8,78 +8,42 @@ use nadar\quill\Lexer;
 use App\Document\Contrat;
 use App\Document\Variable;
 use Doctrine\ODM\MongoDB\DocumentManager as DocumentManager;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 
 class PdfController
 {
-    public function generatePdf(DocumentManager $dm)
+    public function generatePdf(loggerInterface $logger,DocumentManager $dm)
     {
         /* RECUPERER JsonVar DU FRONT*/
         $repoVariable = $dm->getRepository(Variable::class);
-        $jsonVarBD = $repoVariable->findOneBy(['idContrat' => '5e4e9cc13b130000a60040e7']);
-        $jsonVar = $jsonVarBD->getVar();
+        $jsonVarBD = $repoVariable->findOneBy(['idContrat' => '5e523c96cc16000022000a82']);
+        $jsonVar = explode(',', $jsonVarBD->getVar());
+        $jsonVar = str_replace('"', '', $jsonVar);
+        $jsonVar = str_replace(' ', '', $jsonVar);
+
+        $resultat = explode(',', $jsonVarBD->getVar());
+        $resultat = str_replace('"', '', $resultat);
+        $resultat = str_replace(' ', '', $resultat);
 
         $repoContrat = $dm->getRepository(Contrat::class);
-        $contratBD = $repoContrat->find('5e4e9cc13b130000a60040e7');
+        $contratBD = $repoContrat->find('5e523c96cc16000022000a82');
         $contrat = $contratBD->getOps();
-        $parsed_json = json_decode($contrat); 
 
-        // Parcours du contrat remplacé les variables*/
-
-        foreach ($parsed_json->ops as $v) {
-            $chaine = $v->insert;
-            $taille = strlen($chaine);
-            $indice = 0;
-            
-
-            while($indice < $taille)
+        //Parcours du contrat
+        $parsed_json = json_decode($contrat);
+        $tailleResultat = count($resultat);
+        foreach ($parsed_json->ops as $v) 
+        {
+            //Parcours des résultats
+            $indiceResultat = 0;
+            while($indiceResultat < $tailleResultat)
             {
-                $chaine = substr($chaine, $indice);
-                $chaine = '\n'.$chaine;
-                $taille = strlen($chaine);
-
-                $posDeb = strpos($chaine, '{{');
-
-                if($posDeb != NULL)
-                {
-                    $posMil = strpos($chaine, '||');
-                    if($posMil != NULL)
-                    {
-                        $variable = substr($chaine, $posDeb+2, $posMil-$taille);
-                        $posFin = strpos($chaine, '}}');
-
-                        if($posFin != NULL)
-                        {
-                            $type = substr($chaine, $posMil+2, $posFin-$taille);
-                            $jsonVar .= '"'.$variable . '" : "' . $type . '", ';
-                            $indice = $posFin + 3;
-                            // Recherche de la variable dans $jsonVar
-                            $i = 0;
-                            while($i < strlen($jsonVar))
-                            {
-                                if($jsonVar[i] == $variable)
-                                {
-                                   // $chaine = str_replace('{{'.$variable.'||'..'}}', $type, )
-                                    $i = strlen($jsonVar);
-                                }
-                                $i++;
-                            }
-                            
-                        }
-                        else
-                        {
-                            $indice = $taille;
-                        }
-                    }
-                    else
-                    {
-                        $indice = $taille;
-                    }
-                }
-                else
-                {
-                    $indice = $taille;
-                }
+                $chaineARemplacer = '{{'.explode(':', $jsonVar[$indiceResultat])[0].'||'.explode(':', $jsonVar[$indiceResultat])[1].'}}';
+                $nouvelleChaine = explode(':', $resultat[$indiceResultat]);
+                $v->insert = str_replace($chaineARemplacer, $nouvelleChaine[1], $v->insert);
+                $indiceResultat++;
             }
         }
 
@@ -90,8 +54,11 @@ class PdfController
 
         $html2pdf = new Html2Pdf('P', 'A4', 'fr');
         $html2pdf->writeHTML($html);
-        $html2pdf->output('Exemple.pdf');
+        //$html2pdf->output('Exemple.pdf');
+        $filename = __DIR__.'/document'.$contratBD->getId().'.pdf';
+        $html2pdf->Output($filename, 'F');
 
-        return new Response($html);       
+        //return new Response(file_get_contents(__DIR__.'/document'.$contratBD->getId().'.pdf'));
+        return new BinaryFileResponse($filename);       
     }
 }
