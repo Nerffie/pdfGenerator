@@ -5,6 +5,7 @@ namespace App\Controller;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
@@ -45,7 +46,7 @@ class FormController
     /**
      * @Route("/form/{id}", name="post_form", methods={"POST"})
      */
-    public function postFormById(loggerInterface $logger,DocumentManager $dm, Request $request,$id): Response
+    public function postFormById(loggerInterface $logger,DocumentManager $dm, Request $request,$id): BinaryFileResponse
     {
         // Afficher les paramêtres
         $logger->info($request->getContent());
@@ -99,8 +100,15 @@ class FormController
         // Convertir le HTML en PDF
         $html2pdf = new Html2Pdf('P', 'A4', 'fr');
         $html2pdf->writeHTML($html);
-        $filename = $html2pdf->output('document.pdf', 'S');
         
-        return new Response($filename);
+        $filename = __DIR__.'/document'.$contratBD->getId().'.pdf';
+        $html2pdf->output($filename, 'F');
+
+        $logger->warning($filename);
+
+        return new BinaryFileResponse($filename);
+        
+        //return new Response($filename);
+        //return new Response($html);
     }    
 }
