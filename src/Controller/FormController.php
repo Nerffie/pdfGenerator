@@ -10,6 +10,7 @@ use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 use Doctrine\ODM\MongoDB\DocumentManager as DocumentManager;
 use Psr\Log\LoggerInterface;
@@ -99,8 +100,16 @@ class FormController
         // Convertir le HTML en PDF
         $html2pdf = new Html2Pdf('P', 'A4', 'fr');
         $html2pdf->writeHTML($html);
-        $filename = $html2pdf->output('document.pdf', 'S');
+        //$filename = $html2pdf->output('document.pdf', 'S');
+        //return new BinaryFileResponse($filename);
         
-        return new Response($filename);
+        //return new Response($filename);
+        /*return new Response(
+            //$html2pdf->Output('document.pdf', 'F')
+            $html2pdf->Output(__DIR__ . '/document.pdf', 'F')
+        );*/
+        $html2pdf->Output(__DIR__ . '/document.pdf', 'F');
+        return new BinaryFileResponse(__DIR__ . '/document.pdf');
+        //return new JsonResponse(['data' => base64_encode($html2pdf->Output())]);
     }    
 }

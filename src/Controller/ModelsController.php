@@ -15,11 +15,11 @@ use Doctrine\ODM\MongoDB\DocumentManager as DocumentManager;
 use App\Document\Contrat;
 
 
-class ContractsController
+class ModelsController
 {
     // Fondtion qui récupère tous les contrats de la base de données
     /**
-     * @Route("/contracts", name="get_all_contracts", methods={"GET"})
+     * @Route("/models", name="get_all_models", methods={"GET"})
      */
     public function getAll(DocumentManager $dm): JsonResponse
     {
